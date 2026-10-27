@@ -1,6 +1,7 @@
 // Hand tracking runs locally in the browser once the model has downloaded.
 // Camera frames are never transmitted or stored.
 const sources=[
+  {js:new URL('../vendor/mediapipe/vision_bundle.mjs',import.meta.url).href,wasm:new URL('../vendor/mediapipe/wasm',import.meta.url).href,model:new URL('../vendor/mediapipe/hand_landmarker.task',import.meta.url).href},
   {js:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs',wasm:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'},
   {js:'https://unpkg.com/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs',wasm:'https://unpkg.com/@mediapipe/tasks-vision@0.10.22/wasm'},
   {js:'https://esm.sh/@mediapipe/tasks-vision@0.10.22',wasm:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'}
@@ -16,7 +17,7 @@ export class HandTracker {
         if(!HandLandmarker||!FilesetResolver)throw Error('API MediaPipe introuvable');
         const vision=await FilesetResolver.forVisionTasks(source.wasm);
         this.landmarker=await HandLandmarker.createFromOptions(vision,{
-          baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',delegate:'CPU'},
+          baseOptions:{modelAssetPath:source.model||'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',delegate:'CPU'},
           runningMode:'VIDEO',numHands:2,minHandDetectionConfidence:.5,minTrackingConfidence:.5
         });
         return;
