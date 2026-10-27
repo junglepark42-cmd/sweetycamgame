@@ -18,9 +18,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Package MediaPipe locally into the website
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site/vendor/mediapipe _site/src
+          cp index.html _site/
+          cp src/*.js src/*.css _site/src/
+          npm pack @mediapipe/tasks-vision@0.10.22 --pack-destination /tmp
+          mkdir -p /tmp/sweety-mediapipe
+          tar -xzf /tmp/mediapipe-tasks-vision-0.10.22.tgz -C /tmp/sweety-mediapipe
+          cp /tmp/sweety-mediapipe/package/vision_bundle.mjs _site/vendor/mediapipe/
+          cp -R /tmp/sweety-mediapipe/package/wasm _site/vendor/mediapipe/
+          curl --fail --location --retry 4 --retry-all-errors --connect-timeout 20 --max-time 180 \
+            https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task \
+            --output _site/vendor/mediapipe/hand_landmarker.task
+          test -s _site/vendor/mediapipe/vision_bundle.mjs
+          test -s _site/vendor/mediapipe/wasm/vision_wasm_internal.wasm
+          test -s _site/vendor/mediapipe/hand_landmarker.task
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
