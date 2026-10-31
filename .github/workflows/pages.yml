@@ -36,6 +36,12 @@ jobs:
           test -s _site/vendor/mediapipe/vision_bundle.mjs
           test -s _site/vendor/mediapipe/wasm/vision_wasm_internal.wasm
           test -s _site/vendor/mediapipe/hand_landmarker.task
+          node --check _site/vendor/mediapipe/vision_bundle.mjs
+          node --check _site/src/tracker.js
+          node --check _site/src/main.js
+          test $(wc -c < _site/vendor/mediapipe/hand_landmarker.task) -gt 100000
+          test $(wc -c < _site/vendor/mediapipe/wasm/vision_wasm_internal.wasm) -gt 100000
+          echo 'MediaPipe JS, WASM and hand model packaged and checked'
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
